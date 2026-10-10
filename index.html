@@ -1,592 +1,294 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b0b12">
-<title>Chess Club — Play. Improve. Dominate.</title>
-<script src="https://cdn.jsdelivr.net/npm/chess.js@1.4.0/dist/chess.umd.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chess Club ♟</title>
 <style>
-:root {
-  --bg:#0b0b12; --panel:#14141f; --panel2:#1c1c2b;
-  --purple:#9b70ff; --cyan:#61e7ed; --text:#f4f2ff;
-  --muted:#9998b0; --border:#29283c; --green:#66e5a1;
-}
+:root{color-scheme:dark;--bg:#0b0b12;--panel:#151522;--line:#303047;--purple:#a78bfa;--cyan:#67e8f9;--muted:#a4a3b8}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);
- font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+body{margin:0;background:var(--bg);color:#f5f3ff;font:15px system-ui,sans-serif}
+header{padding:17px 5%;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;background:#0b0b12ed;z-index:2}
+.brand{font-size:20px;font-weight:900}.brand b{color:var(--purple)}
+main{max-width:1150px;margin:auto;padding:28px 16px}
+h1{font-size:clamp(36px,6vw,64px);line-height:1.05;margin:12px 0}
+h1 span{color:var(--purple)}p{color:var(--muted);line-height:1.6}
+.hero{padding:24px 0 30px}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(270px,.9fr);gap:18px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:18px;margin-bottom:18px;min-width:0}
+.panel h2{margin:0 0 16px;font-size:20px}
 button,input,select{font:inherit}
 button{cursor:pointer}
-button:focus-visible,input:focus-visible,select:focus-visible{
- outline:2px solid var(--cyan);outline-offset:3px}
-a{color:var(--cyan);text-decoration:none}
-a:hover{text-decoration:underline}
-.top{height:72px;border-bottom:1px solid var(--border);
- display:flex;align-items:center;justify-content:space-between;
- padding:0 5%;position:sticky;top:0;background:#0b0b12ee;
- backdrop-filter:blur(16px);z-index:5}
-.brand{display:flex;align-items:center;gap:12px;font-weight:900;
- font-size:20px;letter-spacing:-.6px}
-.logo{display:grid;place-items:center;width:40px;height:40px;
- border-radius:13px;background:linear-gradient(135deg,#9b70ff,#5d3ec8);
- font-size:25px;box-shadow:0 0 25px #8657ff30}
-.brand span{color:var(--purple)}
-.topright{display:flex;align-items:center;gap:12px}
-.status{font-size:12px;color:var(--green)}
-.btn{border:1px solid var(--border);border-radius:11px;padding:10px 15px;
- color:var(--text);background:var(--panel2);font-weight:750;
- transition:.15s}
-.btn:hover{transform:translateY(-1px);border-color:var(--purple)}
-.btn.primary{background:var(--purple);color:#100b20;border-color:var(--purple)}
-.btn.cyan{background:var(--cyan);color:#061518;border-color:var(--cyan)}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.wrap{max-width:1250px;margin:auto;padding:34px 22px 70px}
-.hero{padding:36px 0 30px;display:grid;grid-template-columns:1.4fr .6fr;
- gap:30px;align-items:center}
-.eyebrow{color:var(--cyan);font-weight:850;letter-spacing:2px;
- text-transform:uppercase;font-size:11px}
-h1{font-size:clamp(38px,6vw,68px);letter-spacing:-3px;
- line-height:1.02;margin:12px 0 18px}
-h1 em{font-style:normal;color:var(--purple)}
-.sub{color:var(--muted);max-width:600px;font-size:16px}
-.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:23px}
-.hero-card{padding:24px;border:1px solid #4d3d76;border-radius:20px;
- background:radial-gradient(ellipse at 90% 0%,#50378a45,transparent 60%),var(--panel)}
-.hero-card .big{font-size:58px;line-height:1.2}
-.hero-card h3{margin:10px 0 4px;font-size:19px}
-.hero-card p{margin:0;color:var(--muted)}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0 30px}
-.stat{padding:17px;border:1px solid var(--border);border-radius:14px;background:var(--panel)}
-.stat strong{display:block;font-size:23px}
-.stat span{color:var(--muted);font-size:12px}
-.layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);
- gap:20px;align-items:start}
-.panel{border:1px solid var(--border);background:var(--panel);
- border-radius:18px;padding:20px;min-width:0}
-.panelhead{display:flex;align-items:center;justify-content:space-between;
- gap:10px;margin-bottom:16px}
-.panelhead h2{margin:0;font-size:19px}
-.tag{font-size:11px;font-weight:800;color:var(--cyan);
- background:#61e7ed14;border:1px solid #61e7ed30;padding:4px 8px;border-radius:7px}
-.board{width:100%;max-width:570px;aspect-ratio:1;display:grid;
- grid-template-columns:repeat(8,1fr);border:4px solid #292438;
- border-radius:5px;overflow:hidden;margin:auto;touch-action:manipulation}
-.square{position:relative;display:grid;place-items:center;padding:0;
- border:0;border-radius:0;aspect-ratio:1;min-width:0;color:#111}
-.light{background:#e7ddca}.dark{background:#89799c}
-.square .piece{font-family:"DejaVu Sans",serif;font-size:clamp(19px,4.2vw,45px);
- line-height:1;filter:drop-shadow(0 1px 1px #0003)}
-.square .coord{position:absolute;left:3px;top:1px;font-size:9px;
- font-weight:800;opacity:.65}
-.square.selected{box-shadow:inset 0 0 0 4px #9b70ff}
-.square.last{background:#c8d96c}
-.square.legal:after{content:"";position:absolute;width:23%;height:23%;
- border-radius:50%;background:#403c59a0}
-.square.capture:after{content:"";position:absolute;inset:3px;
- border:4px solid #403c596e;border-radius:50%}
-.square.check{background:#e66a78}
-.boardbar{display:flex;justify-content:space-between;align-items:center;
- gap:10px;margin:13px 0;color:var(--muted);font-size:13px}
-.moves{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
-.moves span{background:var(--panel2);padding:5px 8px;border-radius:6px;
- font-size:12px}
-.side{display:grid;gap:18px}
-.profile{display:flex;gap:12px;align-items:center;margin:15px 0}
-.avatar{width:46px;height:46px;border-radius:13px;display:grid;
- place-items:center;background:#302344;font-size:23px}
-.profile small{display:block;color:var(--muted)}
-.field{width:100%;padding:12px;border-radius:10px;background:#0e0e18;
- border:1px solid var(--border);color:var(--text);margin:7px 0 12px}
-label{font-size:12px;color:var(--muted);font-weight:750}
-.full{width:100%}
-.note{color:var(--muted);font-size:12px;line-height:1.65}
-.notice{padding:12px;border:1px solid var(--border);border-radius:10px;
- color:var(--muted);font-size:13px;margin-top:12px;overflow-wrap:anywhere}
+.btn{border:1px solid var(--line);background:#222235;color:#fff;padding:10px 13px;border-radius:10px;font-weight:750}
+.btn:hover{border-color:var(--purple)}
+.primary{background:var(--purple);border-color:var(--purple);color:#160e2a}
+.cyan{background:var(--cyan);color:#091519;border-color:var(--cyan)}
+button:disabled{opacity:.5;cursor:wait}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));width:100%;aspect-ratio:1;border:3px solid #37334c;overflow:hidden}
+.sq{border:0;border-radius:0;padding:0;aspect-ratio:1;display:grid;place-items:center;position:relative;color:#111}
+.light{background:#e9dfca}.dark{background:#88799b}
+.sq .piece{font-family:"DejaVu Sans",serif;font-size:clamp(19px,4.4vw,46px);line-height:1}
+.sq.sel{box-shadow:inset 0 0 0 4px #a78bfa}
+.sq.target:after{content:"";position:absolute;width:23%;height:23%;border-radius:50%;background:#28253e99}
+.sq.capture:after{content:"";position:absolute;inset:3px;border:4px solid #28253e88;border-radius:50%}
+.sq.last{background:#c8d76b}
+.sq.check{background:#ec7184}
+.info{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:13px;margin:12px 0}
+.field{display:block;width:100%;padding:12px;margin:7px 0 13px;background:#0b0b12;color:white;border:1px solid var(--line);border-radius:9px}
+label{font-size:12px;color:var(--muted);font-weight:800}
+.note{font-size:12px}
+.notice{overflow-wrap:anywhere;border:1px solid var(--line);padding:12px;border-radius:9px;margin-top:12px;color:var(--muted);font-size:13px}
 .notice.error{border-color:#a34e69;color:#ff9ab2}
-.notice.ok{border-color:#3d805f;color:var(--green)}
-.quicklinks{display:grid;gap:9px}
-.quicklink{display:flex;align-items:center;justify-content:space-between;
- gap:10px;background:var(--panel2);border:1px solid var(--border);
- border-radius:11px;padding:12px;color:var(--text)}
-.quicklink:hover{border-color:var(--purple);text-decoration:none}
-footer{border-top:1px solid var(--border);padding:25px 5%;
- text-align:center;color:var(--muted);font-size:12px}
-@media(max-width:820px){.hero{grid-template-columns:1fr}.hero-card{display:none}
- .layout{grid-template-columns:1fr}.wrap{padding:22px 14px 45px}
- .top{padding:0 14px}.status{display:none}}
-@media(max-width:440px){.brand{font-size:16px}.top{height:62px}
- .topright .btn{padding:8px;font-size:12px}.stats{gap:7px}
- .stat{padding:12px}.stat strong{font-size:18px}
- .panel{padding:13px}.board{border-width:2px}}
+.notice.ok{border-color:#398363;color:#7df0ae}
+.moves{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.moves span{background:#252438;padding:5px 8px;border-radius:6px;font-size:12px}
+a{color:var(--cyan)}
+footer{text-align:center;padding:25px;color:var(--muted);border-top:1px solid var(--line)}
+@media(max-width:760px){.grid{grid-template-columns:1fr}header{padding:14px}.sq .piece{font-size:clamp(18px,8vw,40px)}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 </head>
 <body>
-<header class="top">
-  <a class="brand" href="#" aria-label="Chess Club home">
-    <span class="logo">♞</span> CHESS <span>CLUB</span>
-  </a>
-  <div class="topright">
-    <span class="status">● CLUB ONLINE</span>
-    <button class="btn primary" id="loginTop">Connect Lichess ↗</button>
-  </div>
+<header>
+  <div class="brand">♞ CHESS <b>CLUB</b></div>
+  <button class="btn primary" id="loginTop">Connect Lichess ↗</button>
 </header>
-
-<main class="wrap">
+<main>
   <section class="hero">
-    <div>
-      <div class="eyebrow">♟ Your next move starts here</div>
-      <h1>THINK SHARP.<br><em>PLAY SMART.</em></h1>
-      <p class="sub">Your home for chess. Practise your moves, challenge
-      players around the world and take your game to the next level.</p>
-      <div class="hero-actions">
-        <button class="btn primary" id="scrollBoard">♟ Practise chess</button>
-        <button class="btn" id="scrollOnline">🌐 Find an opponent</button>
-      </div>
-    </div>
-    <div class="hero-card">
-      <div class="big">♜ ♞ ♝</div>
-      <h3>Make your move.</h3>
-      <p>One board. Endless possibilities.</p>
+    <p>♟ YOUR NEXT MOVE STARTS HERE</p>
+    <h1>THINK SHARP.<br><span>PLAY SMART.</span></h1>
+    <p>Practice chess, challenge your friends and improve your game.</p>
+    <div class="row">
+      <button class="btn primary" id="goBoard">♟ Play chess</button>
+      <button class="btn" id="goOnline">🌐 Online games</button>
     </div>
   </section>
-
-  <section class="stats">
-    <div class="stat"><strong>♟ 64</strong><span>SQUARES ON THE BOARD</span></div>
-    <div class="stat"><strong>∞</strong><span>WAYS TO PLAY</span></div>
-    <div class="stat"><strong id="accountStat">—</strong><span>LICHESS CONNECTION</span></div>
-  </section>
-
-  <section class="layout">
-    <div class="panel" id="practice">
-      <div class="panelhead">
-        <h2>♟ Practice Arena</h2><span class="tag">LOCAL GAME</span>
+  <div class="grid">
+    <section class="panel" id="practice">
+      <h2>♟ Practice arena</h2>
+      <div class="info"><span id="turn">White to move</span><span id="status">Ready</span></div>
+      <div id="board" class="board" aria-label="Chess board"></div>
+      <div class="info"><span>Choose a piece, then a square.</span><button class="btn" id="flip">Flip board ↻</button></div>
+      <div class="moves" id="moves">No moves yet</div>
+      <div class="row">
+        <button class="btn primary" id="new">New game ↻</button>
+        <button class="btn" id="undo">Undo ↶</button>
+        <button class="btn" id="pgn">Export PGN ↓</button>
       </div>
-      <div class="boardbar">
-        <span id="turnText">White to move</span>
-        <span id="gameStatus">New game</span>
-      </div>
-      <div class="board" id="board" role="group" aria-label="Chessboard"></div>
-      <div class="boardbar">
-        <span>Tap a piece, then its destination.</span>
-        <button class="btn" id="flip">Flip board ↻</button>
-      </div>
-      <div class="moves" id="moves"><span>No moves yet</span></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:17px">
-        <button class="btn primary" id="newGame">↻ New game</button>
-        <button class="btn" id="undo">↶ Undo move</button>
-        <button class="btn" id="downloadPgn">↓ Export PGN</button>
-      </div>
-      <p class="note">This is a local two-player practice board. It enforces
-      legal chess moves, including check, castling, en passant and promotion.
-      It does not connect this board to online opponents.</p>
-    </div>
-
-    <aside class="side">
+      <p class="note">Local two-player practice. Legal moves are checked by chess.js. This board is not an online multiplayer game.</p>
+    </section>
+    <aside>
       <section class="panel" id="online">
-        <div class="panelhead">
-          <h2>🌐 Online chess</h2><span class="tag">LICHESS</span>
-        </div>
-        <div class="profile">
-          <div class="avatar">♞</div>
-          <div><strong id="accountName">Not connected</strong>
-            <small id="accountInfo">Sign in with your Lichess account</small></div>
-        </div>
-        <button class="btn primary full" id="login">Connect with Lichess ↗</button>
-        <div class="notice" id="authMessage" role="status">
-          Connect to Lichess to send player challenges. Sign-in is handled
-          by Lichess using OAuth.
-        </div>
-        <hr style="border:0;border-top:1px solid var(--border);margin:20px 0">
-        <label for="opponent">LICHESS USERNAME</label>
-        <input class="field" id="opponent" maxlength="30"
-          placeholder="Enter an exact Lichess username" autocomplete="off">
+        <h2>🌐 Online chess</h2>
+        <p>Sign in using Lichess, then challenge another Lichess player. Games are hosted by Lichess.</p>
+        <button class="btn primary" id="login">Connect with Lichess ↗</button>
+        <button class="btn" id="logout">Disconnect</button>
+        <div class="notice" id="auth" role="status">Not connected.</div>
+        <p><label for="opponent">OPPONENT'S LICHESS USERNAME</label>
+        <input class="field" id="opponent" maxlength="30" placeholder="Enter username"></p>
         <label for="clock">TIME CONTROL</label>
         <select class="field" id="clock">
-          <option value="180,0">Blitz · 3 + 0</option>
-          <option value="300,0" selected>Blitz · 5 + 0</option>
-          <option value="600,0">Rapid · 10 + 0</option>
-          <option value="600,5">Rapid · 10 + 5</option>
-          <option value="900,10">Rapid · 15 + 10</option>
+          <option value="180,0">Blitz · 3+0</option>
+          <option value="300,0" selected>Blitz · 5+0</option>
+          <option value="600,0">Rapid · 10+0</option>
+          <option value="600,5">Rapid · 10+5</option>
         </select>
-        <button class="btn cyan full" id="challenge">Send challenge ↗</button>
-        <button class="btn full" id="openLichess" style="margin-top:8px">
-          Browse Lichess games ↗
-        </button>
-        <p class="note">Challenges are created through the Lichess API.
-        Your opponent must accept the challenge. The actual online game,
-        clocks, moves and result are hosted by Lichess.</p>
+        <button class="btn cyan" id="challenge">Send challenge ↗</button>
+        <button class="btn" id="browse">Browse Lichess ↗</button>
       </section>
-
       <section class="panel">
-        <div class="panelhead"><h2>⚡ Quick links</h2></div>
-        <div class="quicklinks">
-          <a class="quicklink" href="https://lichess.org/" target="_blank" rel="noopener">
-            <span>♟ Play on Lichess</span><span>↗</span>
-          </a>
-          <a class="quicklink" href="https://lichess.org/tournament" target="_blank" rel="noopener">
-            <span>🏆 Tournaments</span><span>↗</span>
-          </a>
-          <a class="quicklink" href="https://lichess.org/training" target="_blank" rel="noopener">
-            <span>🧠 Puzzles & training</span><span>↗</span>
-          </a>
-          <a class="quicklink" href="https://lichess.org/learn" target="_blank" rel="noopener">
-            <span>📚 Learn chess</span><span>↗</span>
-          </a>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panelhead"><h2>🧩 Daily puzzle</h2></div>
-        <p class="note">Try the official Lichess puzzle below. The puzzle is
-        provided by Lichess, not generated by this site.</p>
-        <iframe title="Lichess daily chess puzzle"
-          src="https://lichess.org/training/frame?theme=purple&bg=dark"
-          style="width:100%;height:400px;border:0;border-radius:10px"
-          loading="lazy" allowtransparency="true"></iframe>
+        <h2>⚡ Quick links</h2>
+        <p><a href="https://lichess.org/" target="_blank" rel="noopener">Play online ↗</a></p>
+        <p><a href="https://lichess.org/tournament" target="_blank" rel="noopener">Tournaments ↗</a></p>
+        <p><a href="https://lichess.org/training" target="_blank" rel="noopener">Chess puzzles ↗</a></p>
+        <p><a href="https://lichess.org/learn" target="_blank" rel="noopener">Learn chess ↗</a></p>
       </section>
     </aside>
-  </section>
+  </div>
 </main>
-
-<footer>
-  CHESS CLUB · Community chess, powered by Lichess
-  <br><br>
-  This is an independent community website, not an official Lichess project.
-  Chess games and Lichess account services are provided by Lichess.
-</footer>
-
+<footer>Chess Club · Independent community website · Online games powered by Lichess</footer>
 <script>
 (function(){
 "use strict";
-
-const $ = id => document.getElementById(id);
-const API = "https://lichess.org";
-const CLIENT_ID = "chess-club-github-pages";
-const TOKEN_KEY = "cc_lichess_token";
-const VERIFIER_KEY = "cc_oauth_verifier";
-const STATE_KEY = "cc_oauth_state";
-
-let chess = new Chess();
-let selected = null;
-let legalTargets = [];
-let flipped = false;
-let lastMove = null;
-let token = sessionStorage.getItem(TOKEN_KEY) || "";
-let account = null;
-
-function message(text, kind) {
-  const el = $("authMessage");
-  el.textContent = text;
-  el.className = "notice" + (kind ? " " + kind : "");
+const $=id=>document.getElementById(id);
+function say(text,type){
+  $("auth").textContent=text;
+  $("auth").className="notice"+(type?" "+type:"");
 }
-function randomString(bytes) {
-  const data = crypto.getRandomValues(new Uint8Array(bytes));
-  return Array.from(data, b => b.toString(16).padStart(2,"0")).join("");
-}
-function base64url(bytes) {
-  let binary = "";
-  bytes.forEach(b => binary += String.fromCharCode(b));
-  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-}
-function redirectUri() {
-  return location.origin + location.pathname;
-}
-async function sha256(text) {
-  return new Uint8Array(await crypto.subtle.digest(
-    "SHA-256", new TextEncoder().encode(text)));
-}
-async function login() {
-  if (!window.crypto || !crypto.subtle) {
-    message("Secure browser cryptography is unavailable. Open this site over HTTPS.", "error");
-    return;
-  }
-  const verifier = randomString(32);
-  const state = randomString(16);
-  sessionStorage.setItem(VERIFIER_KEY, verifier);
-  sessionStorage.setItem(STATE_KEY, state);
-  const challenge = base64url(await sha256(verifier));
-  const params = new URLSearchParams({
-    response_type:"code",
-    client_id:CLIENT_ID,
-    redirect_uri:redirectUri(),
-    code_challenge_method:"S256",
-    code_challenge:challenge,
-    state:state,
-    scope:"challenge:write challenge:read"
+function on(id,event,fn){
+  $(id).addEventListener(event,function(e){
+    try{fn(e)}catch(err){console.error(err);say("Error: "+err.message,"error")}
   });
-  location.href = API + "/oauth?" + params.toString();
 }
-async function exchangeCode() {
-  const params = new URLSearchParams(location.search);
-  const code = params.get("code");
-  const state = params.get("state");
-  if (!code) return;
-  const expected = sessionStorage.getItem(STATE_KEY);
-  const verifier = sessionStorage.getItem(VERIFIER_KEY);
-  history.replaceState({}, "", redirectUri());
-  if (!expected || state !== expected || !verifier) {
-    message("Sign-in state did not match. Please connect again.", "error");
-    return;
-  }
-  sessionStorage.removeItem(STATE_KEY);
-  sessionStorage.removeItem(VERIFIER_KEY);
-  try {
-    message("Completing Lichess sign-in…");
-    const response = await fetch(API + "/api/token", {
-      method:"POST",
-      headers:{"Content-Type":"application/x-www-form-urlencoded"},
-      body:new URLSearchParams({
-        grant_type:"authorization_code",
-        code:code,
-        code_verifier:verifier,
-        redirect_uri:redirectUri(),
-        client_id:CLIENT_ID
-      })
-    });
-    if (!response.ok) throw new Error("Token exchange failed (" + response.status + ").");
-    const data = await response.json();
-    if (!data.access_token) throw new Error("Lichess returned no access token.");
-    token = data.access_token;
-    sessionStorage.setItem(TOKEN_KEY, token);
-    await loadAccount();
-  } catch(err) {
-    message(err.message + " Try connecting again.", "error");
-  }
-}
-async function api(path, options) {
-  const response = await fetch(API + path, Object.assign({}, options || {}, {
-    headers:Object.assign({
-      "Authorization":"Bearer " + token,
-      "Accept":"application/json"
-    }, options && options.headers || {})
-  }));
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new Error("Lichess API error (" + response.status + "). " +
-      (detail.slice(0,180) || "Please try again."));
-  }
-  return response;
-}
-async function loadAccount() {
-  if (!token) return;
-  try {
-    const response = await api("/api/account");
-    account = await response.json();
-    $("accountName").textContent = account.username || "Lichess player";
-    $("accountInfo").textContent = "Connected with Lichess";
-    $("accountStat").textContent = "✓";
-    $("login").textContent = "Disconnect Lichess";
-    $("loginTop").textContent = "Connected ✓";
-    message("Connected as " + (account.username || "Lichess player") +
-      ". You can now send player challenges.", "ok");
-  } catch(err) {
-    token = "";
-    sessionStorage.removeItem(TOKEN_KEY);
-    $("accountName").textContent = "Not connected";
-    $("accountInfo").textContent = "Please sign in again";
-    $("accountStat").textContent = "—";
-    $("login").textContent = "Connect with Lichess ↗";
-    $("loginTop").textContent = "Connect Lichess ↗";
-    message(err.message, "error");
-  }
-}
-function disconnect() {
-  token = "";
-  account = null;
-  sessionStorage.removeItem(TOKEN_KEY);
-  $("accountName").textContent = "Not connected";
-  $("accountInfo").textContent = "Sign in with your Lichess account";
-  $("accountStat").textContent = "—";
-  $("login").textContent = "Connect with Lichess ↗";
-  $("loginTop").textContent = "Connect Lichess ↗";
-  message("Disconnected locally. To revoke access completely, visit your Lichess account settings.");
-}
+on("goBoard","click",()=>$("practice").scrollIntoView({behavior:"smooth"}));
+on("goOnline","click",()=>$("online").scrollIntoView({behavior:"smooth"}));
+on("browse","click",()=>window.open("https://lichess.org/","_blank","noopener"));
 
-$("login").addEventListener("click", () => token ? disconnect() : login());
-$("loginTop").addEventListener("click", () => token ? disconnect() : login());
-
-$("challenge").addEventListener("click", async () => {
-  if (!token) {
-    message("Connect your Lichess account first.", "error");
-    return;
-  }
-  const username = $("opponent").value.trim();
-  if (!/^[a-zA-Z0-9_-]{2,30}$/.test(username)) {
-    message("Enter a valid Lichess username.", "error");
-    return;
-  }
-  if (account && username.toLowerCase() === account.username.toLowerCase()) {
-    message("Choose another player — you cannot challenge yourself.", "error");
-    return;
-  }
-  const [limit, increment] = $("clock").value.split(",");
-  const button = $("challenge");
-  button.disabled = true;
-  button.textContent = "Sending challenge…";
-  try {
-    const body = new URLSearchParams({
-      "clock.limit":limit,
-      "clock.increment":increment,
-      rated:"false",
-      variant:"standard",
-      color:"random"
-    });
-    const response = await api("/api/challenge/" + encodeURIComponent(username), {
-      method:"POST",
-      headers:{"Content-Type":"application/x-www-form-urlencoded"},
-      body:body
-    });
-    const data = await response.json();
-    const url = data.challenge && data.challenge.url
-      ? data.challenge.url
-      : data.url;
-    if (url) {
-      message("Challenge created! Opening Lichess…", "ok");
-      window.open(url, "_blank", "noopener");
-    } else {
-      message("Challenge request sent. Check your Lichess account for its status.", "ok");
-    }
-  } catch(err) {
-    message(err.message + " Check the username, permissions and Lichess API status.", "error");
-  } finally {
-    button.disabled = false;
-    button.textContent = "Send challenge ↗";
-  }
-});
-
-$("openLichess").addEventListener("click", () => {
-  window.open("https://lichess.org/", "_blank", "noopener");
-});
-$("scrollBoard").addEventListener("click", () =>
-  $("practice").scrollIntoView({behavior:"smooth"}));
-$("scrollOnline").addEventListener("click", () =>
-  $("online").scrollIntoView({behavior:"smooth"}));
-
-const symbols = {
-  w:{k:"♔",q:"♕",r:"♖",b:"♗",n:"♘",p:"♙"},
-  b:{k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"}
+let game=null,selected=null,targets=[],flipped=false,last=null;
+const symbols={
+ w:{k:"♔",q:"♕",r:"♖",b:"♗",n:"♘",p:"♙"},
+ b:{k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"}
 };
-function renderBoard() {
-  const root = $("board");
-  root.innerHTML = "";
-  const files = flipped ? "hgfedcba" : "abcdefgh";
-  const ranks = flipped ? "12345678" : "87654321";
-  const check = chess.isCheck() ? chess.turn() : null;
-
-  for (let ri=0; ri<8; ri++) {
-    for (let fi=0; fi<8; fi++) {
-      const sq = files[fi] + ranks[ri];
-      const piece = chess.get(sq);
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "square " +
-        ((ri+fi)%2===0 ? "light" : "dark");
-      btn.setAttribute("aria-label", sq +
-        (piece ? " " + (piece.color==="w"?"white ":"black ") + piece.type : ""));
-      if (selected === sq) btn.classList.add("selected");
-      if (lastMove && (lastMove.from===sq || lastMove.to===sq))
-        btn.classList.add("last");
-      if (legalTargets.includes(sq))
-        btn.classList.add(piece ? "capture" : "legal");
-      if (check && piece && piece.type==="k" && piece.color===check)
-        btn.classList.add("check");
-      if (piece) {
-        const span = document.createElement("span");
-        span.className = "piece";
-        span.textContent = symbols[piece.color][piece.type];
-        btn.appendChild(span);
-      }
-      if (fi===0 || ri===7) {
-        const coord = document.createElement("span");
-        coord.className = "coord";
-        coord.textContent = fi===0 ? ranks[ri] : files[fi];
-        btn.appendChild(coord);
-      }
-      btn.addEventListener("click", () => clickSquare(sq));
-      root.appendChild(btn);
-    }
-  }
-  $("turnText").textContent = chess.isGameOver()
-    ? "Game finished"
-    : (chess.turn()==="w" ? "White" : "Black") + " to move";
-  let status = "Game in progress";
-  if (chess.isCheckmate()) status = "Checkmate!";
-  else if (chess.isStalemate()) status = "Stalemate";
-  else if (chess.isThreefoldRepetition()) status = "Threefold repetition";
-  else if (chess.isInsufficientMaterial()) status = "Draw: insufficient material";
-  else if (chess.isDraw()) status = "Draw";
-  else if (chess.isCheck()) status = "Check!";
-  $("gameStatus").textContent = status;
-  const history = chess.history();
-  $("moves").innerHTML = "";
-  if (!history.length) {
-    const span = document.createElement("span");
-    span.textContent = "No moves yet";
-    $("moves").appendChild(span);
-  } else {
-    for (let i=0; i<history.length; i+=2) {
-      const span = document.createElement("span");
-      span.textContent = (Math.floor(i/2)+1) + ". " +
-        history[i] + (history[i+1] ? " " + history[i+1] : "");
-      $("moves").appendChild(span);
-    }
-  }
+function initChess(){
+ if(typeof window.Chess!=="function"){
+  $("board").textContent="Chess library did not load. Check your internet connection and refresh.";
+  $("status").textContent="Library error";
+  ["new","undo","flip","pgn"].forEach(id=>$(id).disabled=true);
+  return false;
+ }
+ game=new Chess();
+ render();
+ return true;
 }
-function clickSquare(sq) {
-  if (chess.isGameOver()) return;
-  const piece = chess.get(sq);
-  if (selected && legalTargets.includes(sq)) {
-    const moving = chess.get(selected);
-    const move = {from:selected,to:sq};
-    if (moving && moving.type==="p" &&
-        (sq.endsWith("8") || sq.endsWith("1"))) {
-      const answer = prompt("Promote to q (queen), r (rook), b (bishop) or n (knight):", "q");
-      const promotion = (answer || "q").toLowerCase();
-      move.promotion = ["q","r","b","n"].includes(promotion) ? promotion : "q";
-    }
-    try {
-      const result = chess.move(move);
-      if (result) lastMove = {from:result.from,to:result.to};
-    } catch(e) {}
-    selected = null;
-    legalTargets = [];
-    renderBoard();
-    return;
+function render(){
+ if(!game)return;
+ const root=$("board");root.innerHTML="";
+ const files=flipped?"hgfedcba":"abcdefgh";
+ const ranks=flipped?"12345678":"87654321";
+ for(let r=0;r<8;r++)for(let f=0;f<8;f++){
+  const sq=files[f]+ranks[r],piece=game.get(sq);
+  const b=document.createElement("button");
+  b.type="button";b.className="sq "+((r+f)%2===0?"light":"dark");
+  b.setAttribute("aria-label",sq+(piece?" "+piece.color+" "+piece.type:""));
+  if(sq===selected)b.classList.add("sel");
+  if(last&&(last.from===sq||last.to===sq))b.classList.add("last");
+  if(targets.includes(sq))b.classList.add(piece?"capture":"target");
+  if(game.in_check()&&piece&&piece.type==="k"&&piece.color===game.turn())b.classList.add("check");
+  if(piece){
+   const span=document.createElement("span");span.className="piece";
+   span.textContent=symbols[piece.color][piece.type];b.appendChild(span);
   }
-  if (piece && piece.color===chess.turn()) {
-    selected = sq;
-    legalTargets = chess.moves({square:sq,verbose:true}).map(m=>m.to);
-  } else {
-    selected = null;
-    legalTargets = [];
-  }
-  renderBoard();
+  b.addEventListener("click",()=>clickSquare(sq));root.appendChild(b);
+ }
+ $("turn").textContent=game.game_over()?"Game finished":(game.turn()==="w"?"White":"Black")+" to move";
+ let s=game.in_checkmate()?"Checkmate!":game.in_stalemate()?"Stalemate":game.in_draw()?"Draw":game.in_check()?"Check!":"Game in progress";
+ $("status").textContent=s;
+ const hist=game.history();
+ $("moves").innerHTML="";
+ if(!hist.length)$("moves").textContent="No moves yet";
+ else for(let i=0;i<hist.length;i+=2){
+  const span=document.createElement("span");
+  span.textContent=(i/2+1)+". "+hist[i]+(hist[i+1]?" "+hist[i+1]:"");
+  $("moves").appendChild(span);
+ }
 }
-$("newGame").addEventListener("click", () => {
-  chess.reset(); selected=null; legalTargets=[]; lastMove=null; renderBoard();
-});
-$("undo").addEventListener("click", () => {
-  const move = chess.undo();
-  if (move) lastMove = null;
-  selected=null; legalTargets=[]; renderBoard();
-});
-$("flip").addEventListener("click", () => {
-  flipped=!flipped; renderBoard();
-});
-$("downloadPgn").addEventListener("click", () => {
-  const blob = new Blob([chess.pgn()], {type:"application/x-chess-pgn"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href=url; a.download="chess-club-game.pgn"; a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+function clickSquare(sq){
+ if(!game||game.game_over())return;
+ if(selected&&targets.includes(sq)){
+  const piece=game.get(selected),move={from:selected,to:sq};
+  if(piece&&piece.type==="p"&&(sq.endsWith("8")||sq.endsWith("1"))){
+   const a=prompt("Promote to q, r, b or n?","q");
+   move.promotion=["q","r","b","n"].includes((a||"q").toLowerCase())?(a||"q").toLowerCase():"q";
+  }
+  const result=game.move(move);
+  if(result)last={from:result.from,to:result.to};
+  selected=null;targets=[];render();return;
+ }
+ const p=game.get(sq);
+ if(p&&p.color===game.turn()){
+  selected=sq;targets=game.moves({square:sq,verbose:true}).map(m=>m.to);
+ }else{selected=null;targets=[]}
+ render();
+}
+on("new","click",()=>{if(game){game.reset();selected=null;targets=[];last=null;render()}});
+on("undo","click",()=>{if(game&&game.undo()){selected=null;targets=[];last=null;render()}});
+on("flip","click",()=>{flipped=!flipped;render()});
+on("pgn","click",()=>{
+ if(!game)return;
+ const url=URL.createObjectURL(new Blob([game.pgn()],{type:"application/x-chess-pgn"}));
+ const a=document.createElement("a");a.href=url;a.download="chess-club.pgn";a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
 
-renderBoard();
-if (new URLSearchParams(location.search).has("code")) {
-  exchangeCode();
-} else if (token) {
-  loadAccount();
+const API="https://lichess.org";
+const CLIENT="chess-club-github-pages";
+const KEY="cc_token";
+let token=sessionStorage.getItem(KEY)||"",account=null;
+function callback(){return location.origin+location.pathname}
+function rand(n){const a=crypto.getRandomValues(new Uint8Array(n));return Array.from(a,x=>x.toString(16).padStart(2,"0")).join("")}
+function b64(a){let s="";a.forEach(x=>s+=String.fromCharCode(x));return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+async function connect(){
+ if(!crypto.subtle){say("HTTPS and browser cryptography are required for sign-in.","error");return}
+ const verifier=rand(32),state=rand(16);
+ sessionStorage.setItem("cc_verifier",verifier);sessionStorage.setItem("cc_state",state);
+ const digest=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(verifier)));
+ const q=new URLSearchParams({
+  response_type:"code",client_id:CLIENT,redirect_uri:callback(),
+  code_challenge_method:"S256",code_challenge:b64(digest),
+  state:state,scope:"challenge:write challenge:read"
+ });
+ location.href=API+"/oauth?"+q.toString();
 }
+async function request(path,options){
+ const response=await fetch(API+path,Object.assign({},options||{},{
+  headers:Object.assign({Authorization:"Bearer "+token},options&&options.headers||{})
+ }));
+ if(!response.ok)throw new Error("Lichess API returned HTTP "+response.status+". Check access and permissions.");
+ return response;
+}
+async function loadAccount(){
+ if(!token)return;
+ try{
+  const res=await request("/api/account"),data=await res.json();
+  account=data;
+  say("Connected as "+data.username+".","ok");
+  $("login").textContent="Connected: "+data.username;
+ }catch(e){token="";sessionStorage.removeItem(KEY);say(e.message,"error")}
+}
+on("login","click",()=>{if(token){say("Already connected. Use Disconnect to clear this browser session.");return}connect()});
+on("loginTop","click",()=>{if(token){say("Connected. Use Disconnect to sign out.");$("online").scrollIntoView({behavior:"smooth"});return}connect()});
+on("logout","click",()=>{
+ token="";account=null;sessionStorage.removeItem(KEY);
+ $("login").textContent="Connect with Lichess ↗";
+ say("Disconnected from this browser session. Revoke access in Lichess settings if needed.");
+});
+on("challenge","click",async()=>{
+ if(!token){say("Connect with Lichess first.","error");return}
+ const username=$("opponent").value.trim();
+ if(!/^[a-zA-Z0-9_-]{2,30}$/.test(username)){say("Enter a valid Lichess username.","error");return}
+ if(account&&username.toLowerCase()===account.username.toLowerCase()){say("You cannot challenge yourself.","error");return}
+ const [limit,increment]=$("clock").value.split(",");
+ const btn=$("challenge");btn.disabled=true;btn.textContent="Sending…";
+ try{
+  const body=new URLSearchParams({
+   "clock.limit":limit,"clock.increment":increment,
+   rated:"false",variant:"standard",color:"random"
+  });
+  const res=await request("/api/challenge/"+encodeURIComponent(username),{
+   method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body
+  });
+  const data=await res.json(),url=(data.challenge&&data.challenge.url)||data.url;
+  if(url){say("Challenge created. Opening Lichess.","ok");window.open(url,"_blank","noopener")}
+  else say("Challenge request sent. Check your Lichess account.");
+ }catch(e){say(e.message,"error")}
+ finally{btn.disabled=false;btn.textContent="Send challenge ↗"}
+});
+
+async function startup(){
+ if(!initChess())return;
+ const params=new URLSearchParams(location.search),code=params.get("code");
+ if(!code){if(token)await loadAccount();return}
+ const state=params.get("state"),expected=sessionStorage.getItem("cc_state"),verifier=sessionStorage.getItem("cc_verifier");
+ history.replaceState({},"",callback());
+ if(!state||state!==expected||!verifier){say("Sign-in state mismatch. Please connect again.","error");return}
+ sessionStorage.removeItem("cc_state");sessionStorage.removeItem("cc_verifier");
+ try{
+  say("Completing Lichess sign-in…");
+  const res=await fetch(API+"/api/token",{
+   method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+   body:new URLSearchParams({
+    grant_type:"authorization_code",code,code_verifier:verifier,
+    redirect_uri:callback(),client_id:CLIENT
+   })
+  });
+  if(!res.ok)throw new Error("OAuth token exchange failed (HTTP "+res.status+"). Check the Lichess OAuth documentation.");
+  const data=await res.json();if(!data.access_token)throw new Error("No access token was returned.");
+  token=data.access_token;sessionStorage.setItem(KEY,token);await loadAccount();
+ }catch(e){say(e.message,"error")}
+}
+startup().catch(e=>{console.error(e);say("Startup error: "+e.message,"error")});
 })();
 </script>
 </body>
