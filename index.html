@@ -3,293 +3,307 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chess Club ♟</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{color-scheme:dark;--bg:#0b0b12;--panel:#151522;--line:#303047;--purple:#a78bfa;--cyan:#67e8f9;--muted:#a4a3b8}
+:root{--bg:#0b0b12;--panel:#171725;--line:#303047;--purple:#a78bfa;--cyan:#67e8f9;--muted:#a4a3b8}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:#f5f3ff;font:15px system-ui,sans-serif}
-header{padding:17px 5%;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;background:#0b0b12ed;z-index:2}
-.brand{font-size:20px;font-weight:900}.brand b{color:var(--purple)}
-main{max-width:1150px;margin:auto;padding:28px 16px}
-h1{font-size:clamp(36px,6vw,64px);line-height:1.05;margin:12px 0}
-h1 span{color:var(--purple)}p{color:var(--muted);line-height:1.6}
-.hero{padding:24px 0 30px}
-.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(270px,.9fr);gap:18px;align-items:start}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:18px;margin-bottom:18px;min-width:0}
-.panel h2{margin:0 0 16px;font-size:20px}
-button,input,select{font:inherit}
-button{cursor:pointer}
-.btn{border:1px solid var(--line);background:#222235;color:#fff;padding:10px 13px;border-radius:10px;font-weight:750}
-.btn:hover{border-color:var(--purple)}
-.primary{background:var(--purple);border-color:var(--purple);color:#160e2a}
-.cyan{background:var(--cyan);color:#091519;border-color:var(--cyan)}
-button:disabled{opacity:.5;cursor:wait}
-.row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));width:100%;aspect-ratio:1;border:3px solid #37334c;overflow:hidden}
-.sq{border:0;border-radius:0;padding:0;aspect-ratio:1;display:grid;place-items:center;position:relative;color:#111}
-.light{background:#e9dfca}.dark{background:#88799b}
-.sq .piece{font-family:"DejaVu Sans",serif;font-size:clamp(19px,4.4vw,46px);line-height:1}
-.sq.sel{box-shadow:inset 0 0 0 4px #a78bfa}
-.sq.target:after{content:"";position:absolute;width:23%;height:23%;border-radius:50%;background:#28253e99}
-.sq.capture:after{content:"";position:absolute;inset:3px;border:4px solid #28253e88;border-radius:50%}
-.sq.last{background:#c8d76b}
-.sq.check{background:#ec7184}
-.info{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:13px;margin:12px 0}
-.field{display:block;width:100%;padding:12px;margin:7px 0 13px;background:#0b0b12;color:white;border:1px solid var(--line);border-radius:9px}
-label{font-size:12px;color:var(--muted);font-weight:800}
-.note{font-size:12px}
-.notice{overflow-wrap:anywhere;border:1px solid var(--line);padding:12px;border-radius:9px;margin-top:12px;color:var(--muted);font-size:13px}
-.notice.error{border-color:#a34e69;color:#ff9ab2}
-.notice.ok{border-color:#398363;color:#7df0ae}
-.moves{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
-.moves span{background:#252438;padding:5px 8px;border-radius:6px;font-size:12px}
-a{color:var(--cyan)}
-footer{text-align:center;padding:25px;color:var(--muted);border-top:1px solid var(--line)}
-@media(max-width:760px){.grid{grid-template-columns:1fr}header{padding:14px}.sq .piece{font-size:clamp(18px,8vw,40px)}}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 5%;border-bottom:1px solid var(--line)}
+.logo{font-size:21px;font-weight:950}.logo span,h1 span{color:var(--purple)}
+main{max-width:1100px;margin:auto;padding:25px 16px}
+h1{font-size:clamp(36px,6vw,64px);line-height:1;margin:12px 0}
+p,.muted{color:var(--muted);line-height:1.6}
+.grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr);gap:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:17px;margin-bottom:17px;min-width:0}
+h2{font-size:18px;margin:0 0 14px}
+button,input{font:inherit}
+button{background:#242439;border:1px solid var(--line);color:white;border-radius:9px;padding:10px 13px;cursor:pointer;font-weight:750}
+button:hover{border-color:var(--purple)}
+.primary{background:var(--purple);color:#160d29;border-color:var(--purple)}
+.cyan{background:var(--cyan);color:#07161a;border-color:var(--cyan)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.field{width:100%;background:#0b0b12;border:1px solid var(--line);color:white;border-radius:9px;padding:11px;margin:8px 0 12px}
+.board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));aspect-ratio:1;width:100%;border:3px solid #39344c}
+.sq{aspect-ratio:1;border:0;border-radius:0;padding:0;display:grid;place-items:center;position:relative;min-width:0}
+.light{background:#eadfc9}.dark{background:#8b7b9d}
+.piece{font-family:"DejaVu Sans",serif;font-size:clamp(19px,5vw,46px);line-height:1}
+.sq.selected{box-shadow:inset 0 0 0 4px #a78bfa}
+.sq.target:after{content:"";position:absolute;width:22%;height:22%;border-radius:50%;background:#22213e99}
+.sq.capture:after{content:"";position:absolute;inset:3px;border:4px solid #22213e88;border-radius:50%}
+.notice{padding:11px;border:1px solid var(--line);border-radius:9px;color:var(--muted);overflow-wrap:anywhere}
+small{color:var(--muted)}
+.move-list{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.move-list span{background:#242439;padding:5px 8px;border-radius:5px;font-size:12px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 </head>
 <body>
 <header>
-  <div class="brand">♞ CHESS <b>CLUB</b></div>
-  <button class="btn primary" id="loginTop">Connect Lichess ↗</button>
+  <div class="logo">♞ CHESS <span>CLUB</span></div>
+  <div class="row">
+    <span id="account" class="muted">Guest</span>
+    <button id="signIn" class="primary">Lichess sign-in setup</button>
+    <button id="signOut" hidden>Sign out</button>
+  </div>
 </header>
+
 <main>
-  <section class="hero">
-    <p>♟ YOUR NEXT MOVE STARTS HERE</p>
-    <h1>THINK SHARP.<br><span>PLAY SMART.</span></h1>
-    <p>Practice chess, challenge your friends and improve your game.</p>
-    <div class="row">
-      <button class="btn primary" id="goBoard">♟ Play chess</button>
-      <button class="btn" id="goOnline">🌐 Online games</button>
-    </div>
-  </section>
+  <p style="color:var(--cyan);font-weight:900;letter-spacing:2px">YOUR BOARD. YOUR CLUB.</p>
+  <h1>PLAY SMART.<br><span>PLAY TOGETHER.</span></h1>
+  <p>Independent chess games, player profiles and club ratings.</p>
+
   <div class="grid">
-    <section class="panel" id="practice">
-      <h2>♟ Practice arena</h2>
-      <div class="info"><span id="turn">White to move</span><span id="status">Ready</span></div>
-      <div id="board" class="board" aria-label="Chess board"></div>
-      <div class="info"><span>Choose a piece, then a square.</span><button class="btn" id="flip">Flip board ↻</button></div>
-      <div class="moves" id="moves">No moves yet</div>
-      <div class="row">
-        <button class="btn primary" id="new">New game ↻</button>
-        <button class="btn" id="undo">Undo ↶</button>
-        <button class="btn" id="pgn">Export PGN ↓</button>
+    <section class="panel">
+      <h2>♟ Chess board</h2>
+      <div class="row" style="justify-content:space-between;margin-bottom:12px">
+        <span id="turn">White to move</span>
+        <span id="status" class="muted">Ready</span>
       </div>
-      <p class="note">Local two-player practice. Legal moves are checked by chess.js. This board is not an online multiplayer game.</p>
+      <div id="board" class="board"></div>
+      <div class="move-list" id="moves"></div>
+      <div class="row">
+        <button id="newGame" class="primary">New game</button>
+        <button id="undo">Undo</button>
+        <button id="flip">Flip board ↻</button>
+        <button id="pgn">Export PGN</button>
+      </div>
+      <p class="muted">This board uses chess.js to enforce legal moves. Until the backend is configured, games are local practice only.</p>
     </section>
+
     <aside>
-      <section class="panel" id="online">
-        <h2>🌐 Online chess</h2>
-        <p>Sign in using Lichess, then challenge another Lichess player. Games are hosted by Lichess.</p>
-        <button class="btn primary" id="login">Connect with Lichess ↗</button>
-        <button class="btn" id="logout">Disconnect</button>
-        <div class="notice" id="auth" role="status">Not connected.</div>
-        <p><label for="opponent">OPPONENT'S LICHESS USERNAME</label>
-        <input class="field" id="opponent" maxlength="30" placeholder="Enter username"></p>
-        <label for="clock">TIME CONTROL</label>
-        <select class="field" id="clock">
-          <option value="180,0">Blitz · 3+0</option>
-          <option value="300,0" selected>Blitz · 5+0</option>
-          <option value="600,0">Rapid · 10+0</option>
-          <option value="600,5">Rapid · 10+5</option>
-        </select>
-        <button class="btn cyan" id="challenge">Send challenge ↗</button>
-        <button class="btn" id="browse">Browse Lichess ↗</button>
-      </section>
       <section class="panel">
-        <h2>⚡ Quick links</h2>
-        <p><a href="https://lichess.org/" target="_blank" rel="noopener">Play online ↗</a></p>
-        <p><a href="https://lichess.org/tournament" target="_blank" rel="noopener">Tournaments ↗</a></p>
-        <p><a href="https://lichess.org/training" target="_blank" rel="noopener">Chess puzzles ↗</a></p>
-        <p><a href="https://lichess.org/learn" target="_blank" rel="noopener">Learn chess ↗</a></p>
+        <h2>👤 Your profile</h2>
+        <div id="profile" class="notice">Not signed in.</div>
+        <p class="muted">Chess Club ratings will be separate from your Lichess rating.</p>
+      </section>
+
+      <section class="panel">
+        <h2>🌐 Multiplayer rooms</h2>
+        <label for="roomCode">ROOM CODE</label>
+        <input class="field" id="roomCode" placeholder="Enter a room code">
+        <div class="row">
+          <button class="primary" id="createRoom">Create room</button>
+          <button class="cyan" id="joinRoom">Join room</button>
+        </div>
+        <div class="notice" id="roomStatus" style="margin-top:12px">Backend not configured.</div>
+        <p class="muted">Online rooms require Supabase setup and server-side move validation.</p>
+      </section>
+
+      <section class="panel">
+        <h2>🏆 Club leaderboard</h2>
+        <div id="leaderboard" class="muted">Connect the backend to load ratings.</div>
+      </section>
+
+      <section class="panel">
+        <h2>♜ Chess links</h2>
+        <p><a href="https://lichess.org/" style="color:var(--cyan)">Lichess ↗</a></p>
+        <p><a href="https://www.chess.com/" style="color:var(--cyan)">Chess.com ↗</a></p>
       </section>
     </aside>
   </div>
 </main>
-<footer>Chess Club · Independent community website · Online games powered by Lichess</footer>
+
 <script>
-(function(){
 "use strict";
-const $=id=>document.getElementById(id);
-function say(text,type){
-  $("auth").textContent=text;
-  $("auth").className="notice"+(type?" "+type:"");
-}
-function on(id,event,fn){
-  $(id).addEventListener(event,function(e){
-    try{fn(e)}catch(err){console.error(err);say("Error: "+err.message,"error")}
-  });
-}
-on("goBoard","click",()=>$("practice").scrollIntoView({behavior:"smooth"}));
-on("goOnline","click",()=>$("online").scrollIntoView({behavior:"smooth"}));
-on("browse","click",()=>window.open("https://lichess.org/","_blank","noopener"));
 
-let game=null,selected=null,targets=[],flipped=false,last=null;
-const symbols={
- w:{k:"♔",q:"♕",r:"♖",b:"♗",n:"♘",p:"♙"},
- b:{k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"}
+/*
+  BACKEND CONFIGURATION:
+  Put your Supabase project URL and publishable/anon key here.
+  NEVER put a Supabase service-role key in this file.
+*/
+const CONFIG = {
+  SUPABASE_URL: "YOUR_SUPABASE_PROJECT_URL",
+  SUPABASE_ANON_KEY: "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY"
 };
-function initChess(){
- if(typeof window.Chess!=="function"){
-  $("board").textContent="Chess library did not load. Check your internet connection and refresh.";
-  $("status").textContent="Library error";
-  ["new","undo","flip","pgn"].forEach(id=>$(id).disabled=true);
-  return false;
- }
- game=new Chess();
- render();
- return true;
-}
-function render(){
- if(!game)return;
- const root=$("board");root.innerHTML="";
- const files=flipped?"hgfedcba":"abcdefgh";
- const ranks=flipped?"12345678":"87654321";
- for(let r=0;r<8;r++)for(let f=0;f<8;f++){
-  const sq=files[f]+ranks[r],piece=game.get(sq);
-  const b=document.createElement("button");
-  b.type="button";b.className="sq "+((r+f)%2===0?"light":"dark");
-  b.setAttribute("aria-label",sq+(piece?" "+piece.color+" "+piece.type:""));
-  if(sq===selected)b.classList.add("sel");
-  if(last&&(last.from===sq||last.to===sq))b.classList.add("last");
-  if(targets.includes(sq))b.classList.add(piece?"capture":"target");
-  if(game.in_check()&&piece&&piece.type==="k"&&piece.color===game.turn())b.classList.add("check");
-  if(piece){
-   const span=document.createElement("span");span.className="piece";
-   span.textContent=symbols[piece.color][piece.type];b.appendChild(span);
+
+const $ = id => document.getElementById(id);
+const chess = new Chess();
+const glyph = {
+  w:{k:"♔",q:"♕",r:"♖",b:"♗",n:"♘",p:"♙"},
+  b:{k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"}
+};
+
+let selected = null;
+let targets = [];
+let flipped = false;
+let lastMove = null;
+let supabase = null;
+let currentUser = null;
+
+function drawBoard() {
+  const board = $("board");
+  board.innerHTML = "";
+
+  const files = flipped ? "hgfedcba" : "abcdefgh";
+  const ranks = flipped ? "12345678" : "87654321";
+
+  for (let r = 0; r < 8; r++) {
+    for (let f = 0; f < 8; f++) {
+      const square = files[f] + ranks[r];
+      const piece = chess.get(square);
+      const button = document.createElement("button");
+
+      button.className = "sq " + ((r + f) % 2 === 0 ? "light" : "dark");
+      button.setAttribute("aria-label", square);
+
+      if (square === selected) button.classList.add("selected");
+      if (targets.includes(square)) {
+        button.classList.add(piece ? "capture" : "target");
+      }
+
+      if (piece) {
+        const span = document.createElement("span");
+        span.className = "piece";
+        span.textContent = glyph[piece.color][piece.type];
+        button.appendChild(span);
+      }
+
+      button.addEventListener("click", () => clickSquare(square));
+      board.appendChild(button);
+    }
   }
-  b.addEventListener("click",()=>clickSquare(sq));root.appendChild(b);
- }
- $("turn").textContent=game.game_over()?"Game finished":(game.turn()==="w"?"White":"Black")+" to move";
- let s=game.in_checkmate()?"Checkmate!":game.in_stalemate()?"Stalemate":game.in_draw()?"Draw":game.in_check()?"Check!":"Game in progress";
- $("status").textContent=s;
- const hist=game.history();
- $("moves").innerHTML="";
- if(!hist.length)$("moves").textContent="No moves yet";
- else for(let i=0;i<hist.length;i+=2){
-  const span=document.createElement("span");
-  span.textContent=(i/2+1)+". "+hist[i]+(hist[i+1]?" "+hist[i+1]:"");
-  $("moves").appendChild(span);
- }
-}
-function clickSquare(sq){
- if(!game||game.game_over())return;
- if(selected&&targets.includes(sq)){
-  const piece=game.get(selected),move={from:selected,to:sq};
-  if(piece&&piece.type==="p"&&(sq.endsWith("8")||sq.endsWith("1"))){
-   const a=prompt("Promote to q, r, b or n?","q");
-   move.promotion=["q","r","b","n"].includes((a||"q").toLowerCase())?(a||"q").toLowerCase():"q";
+
+  const history = chess.history();
+  $("moves").innerHTML = "";
+
+  if (!history.length) {
+    $("moves").textContent = "No moves yet";
+  } else {
+    for (let i = 0; i < history.length; i += 2) {
+      const item = document.createElement("span");
+      item.textContent = `${Math.floor(i / 2) + 1}. ${history[i]}${history[i+1] ? " " + history[i+1] : ""}`;
+      $("moves").appendChild(item);
+    }
   }
-  const result=game.move(move);
-  if(result)last={from:result.from,to:result.to};
-  selected=null;targets=[];render();return;
- }
- const p=game.get(sq);
- if(p&&p.color===game.turn()){
-  selected=sq;targets=game.moves({square:sq,verbose:true}).map(m=>m.to);
- }else{selected=null;targets=[]}
- render();
+
+  $("turn").textContent = chess.game_over()
+    ? "Game finished"
+    : (chess.turn() === "w" ? "White" : "Black") + " to move";
+
+  $("status").textContent =
+    chess.in_checkmate() ? "Checkmate!" :
+    chess.in_stalemate() ? "Stalemate" :
+    chess.in_draw() ? "Draw" :
+    chess.in_check() ? "Check!" : "In progress";
 }
-on("new","click",()=>{if(game){game.reset();selected=null;targets=[];last=null;render()}});
-on("undo","click",()=>{if(game&&game.undo()){selected=null;targets=[];last=null;render()}});
-on("flip","click",()=>{flipped=!flipped;render()});
-on("pgn","click",()=>{
- if(!game)return;
- const url=URL.createObjectURL(new Blob([game.pgn()],{type:"application/x-chess-pgn"}));
- const a=document.createElement("a");a.href=url;a.download="chess-club.pgn";a.click();
- setTimeout(()=>URL.revokeObjectURL(url),1000);
+
+function clickSquare(square) {
+  const piece = chess.get(square);
+
+  if (selected && targets.includes(square)) {
+    const moving = chess.get(selected);
+    const move = {from:selected, to:square};
+
+    if (moving && moving.type === "p" &&
+        (square.endsWith("8") || square.endsWith("1"))) {
+      const answer = prompt("Promote to q, r, b or n?", "q");
+      move.promotion = ["q","r","b","n"].includes((answer || "q").toLowerCase())
+        ? (answer || "q").toLowerCase() : "q";
+    }
+
+    const result = chess.move(move);
+    if (result) lastMove = {from:result.from, to:result.to};
+    selected = null;
+    targets = [];
+    drawBoard();
+    return;
+  }
+
+  if (piece && piece.color === chess.turn()) {
+    selected = square;
+    targets = chess.moves({square, verbose:true}).map(m => m.to);
+  } else {
+    selected = null;
+    targets = [];
+  }
+
+  drawBoard();
+}
+
+$("newGame").addEventListener("click", () => {
+  chess.reset();
+  selected = null;
+  targets = [];
+  lastMove = null;
+  drawBoard();
 });
 
-const API="https://lichess.org";
-const CLIENT="chess-club-github-pages";
-const KEY="cc_token";
-let token=sessionStorage.getItem(KEY)||"",account=null;
-function callback(){return location.origin+location.pathname}
-function rand(n){const a=crypto.getRandomValues(new Uint8Array(n));return Array.from(a,x=>x.toString(16).padStart(2,"0")).join("")}
-function b64(a){let s="";a.forEach(x=>s+=String.fromCharCode(x));return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
-async function connect(){
- if(!crypto.subtle){say("HTTPS and browser cryptography are required for sign-in.","error");return}
- const verifier=rand(32),state=rand(16);
- sessionStorage.setItem("cc_verifier",verifier);sessionStorage.setItem("cc_state",state);
- const digest=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(verifier)));
- const q=new URLSearchParams({
-  response_type:"code",client_id:CLIENT,redirect_uri:callback(),
-  code_challenge_method:"S256",code_challenge:b64(digest),
-  state:state,scope:"challenge:write challenge:read"
- });
- location.href=API+"/oauth?"+q.toString();
-}
-async function request(path,options){
- const response=await fetch(API+path,Object.assign({},options||{},{
-  headers:Object.assign({Authorization:"Bearer "+token},options&&options.headers||{})
- }));
- if(!response.ok)throw new Error("Lichess API returned HTTP "+response.status+". Check access and permissions.");
- return response;
-}
-async function loadAccount(){
- if(!token)return;
- try{
-  const res=await request("/api/account"),data=await res.json();
-  account=data;
-  say("Connected as "+data.username+".","ok");
-  $("login").textContent="Connected: "+data.username;
- }catch(e){token="";sessionStorage.removeItem(KEY);say(e.message,"error")}
-}
-on("login","click",()=>{if(token){say("Already connected. Use Disconnect to clear this browser session.");return}connect()});
-on("loginTop","click",()=>{if(token){say("Connected. Use Disconnect to sign out.");$("online").scrollIntoView({behavior:"smooth"});return}connect()});
-on("logout","click",()=>{
- token="";account=null;sessionStorage.removeItem(KEY);
- $("login").textContent="Connect with Lichess ↗";
- say("Disconnected from this browser session. Revoke access in Lichess settings if needed.");
-});
-on("challenge","click",async()=>{
- if(!token){say("Connect with Lichess first.","error");return}
- const username=$("opponent").value.trim();
- if(!/^[a-zA-Z0-9_-]{2,30}$/.test(username)){say("Enter a valid Lichess username.","error");return}
- if(account&&username.toLowerCase()===account.username.toLowerCase()){say("You cannot challenge yourself.","error");return}
- const [limit,increment]=$("clock").value.split(",");
- const btn=$("challenge");btn.disabled=true;btn.textContent="Sending…";
- try{
-  const body=new URLSearchParams({
-   "clock.limit":limit,"clock.increment":increment,
-   rated:"false",variant:"standard",color:"random"
-  });
-  const res=await request("/api/challenge/"+encodeURIComponent(username),{
-   method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body
-  });
-  const data=await res.json(),url=(data.challenge&&data.challenge.url)||data.url;
-  if(url){say("Challenge created. Opening Lichess.","ok");window.open(url,"_blank","noopener")}
-  else say("Challenge request sent. Check your Lichess account.");
- }catch(e){say(e.message,"error")}
- finally{btn.disabled=false;btn.textContent="Send challenge ↗"}
+$("undo").addEventListener("click", () => {
+  chess.undo();
+  selected = null;
+  targets = [];
+  drawBoard();
 });
 
-async function startup(){
- if(!initChess())return;
- const params=new URLSearchParams(location.search),code=params.get("code");
- if(!code){if(token)await loadAccount();return}
- const state=params.get("state"),expected=sessionStorage.getItem("cc_state"),verifier=sessionStorage.getItem("cc_verifier");
- history.replaceState({},"",callback());
- if(!state||state!==expected||!verifier){say("Sign-in state mismatch. Please connect again.","error");return}
- sessionStorage.removeItem("cc_state");sessionStorage.removeItem("cc_verifier");
- try{
-  say("Completing Lichess sign-in…");
-  const res=await fetch(API+"/api/token",{
-   method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
-   body:new URLSearchParams({
-    grant_type:"authorization_code",code,code_verifier:verifier,
-    redirect_uri:callback(),client_id:CLIENT
-   })
+$("flip").addEventListener("click", () => {
+  flipped = !flipped;
+  drawBoard();
+});
+
+$("pgn").addEventListener("click", () => {
+  const blob = new Blob([chess.pgn()], {type:"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "chess-club-game.pgn";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+$("signIn").addEventListener("click", () => {
+  alert(
+    "Lichess authentication needs a correctly configured OAuth client and callback. " +
+    "Chess.com does not offer general-purpose public OAuth sign-in. " +
+    "This button does not pretend to authenticate you."
+  );
+});
+
+$("signOut").addEventListener("click", async () => {
+  if (supabase) await supabase.auth.signOut();
+});
+
+$("createRoom").addEventListener("click", () => {
+  $("roomStatus").textContent =
+    "Not connected. Configure Supabase and deploy the backend before creating real rooms.";
+});
+
+$("joinRoom").addEventListener("click", () => {
+  $("roomStatus").textContent =
+    "Not connected. A room code alone cannot create online multiplayer without the backend.";
+});
+
+function initBackend() {
+  if (!window.supabase) return;
+
+  if (CONFIG.SUPABASE_URL.startsWith("YOUR_") ||
+      CONFIG.SUPABASE_ANON_KEY.startsWith("YOUR_")) {
+    $("roomStatus").textContent =
+      "Add your Supabase project URL and publishable key to CONFIG.";
+    return;
+  }
+
+  supabase = window.supabase.createClient(
+    CONFIG.SUPABASE_URL,
+    CONFIG.SUPABASE_ANON_KEY
+  );
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    currentUser = session ? session.user : null;
+    $("account").textContent = currentUser
+      ? (currentUser.user_metadata?.user_name || currentUser.email || "Player")
+      : "Guest";
+    $("profile").textContent = currentUser
+      ? "Signed in. Finish profile-table setup to load your club rating."
+      : "Not signed in.";
   });
-  if(!res.ok)throw new Error("OAuth token exchange failed (HTTP "+res.status+"). Check the Lichess OAuth documentation.");
-  const data=await res.json();if(!data.access_token)throw new Error("No access token was returned.");
-  token=data.access_token;sessionStorage.setItem(KEY,token);await loadAccount();
- }catch(e){say(e.message,"error")}
 }
-startup().catch(e=>{console.error(e);say("Startup error: "+e.message,"error")});
-})();
+
+drawBoard();
+initBackend();
 </script>
 </body>
 </html>
